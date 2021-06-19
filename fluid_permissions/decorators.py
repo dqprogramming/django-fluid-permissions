@@ -6,8 +6,8 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.urls import reverse
 
+from fluid_permissions import models
 
-# General role-based security decorators
 
 def base_check(request, login_redirect=False):
     """Equivalent to Django's login_required logic
@@ -19,7 +19,7 @@ def base_check(request, login_redirect=False):
     if (
         request is None
         or request.user is None
-        or request.user.is_anonymous()
+        or request.user.is_anonymous
         or not request.user.is_active
     ):
         if login_redirect is True:
@@ -61,8 +61,23 @@ def user_in_authorised_group(func):
     @base_check_required
     @wraps(func)
     def wrapper(request, *args, **kwargs):
-        print(func.__name__)
-        return func(request, *args, **kwargs)
+        view_name = func.__name__
+
+        try:
+            view_group = models.ViewGroup.objects.get(
+                view_name=view_name,
+            )
+            group_names = [group.name for group in view_group.groups.all()]
+            if request.user.groups.filter(name__in=group_names).exists():
+                return func(request, *args, **kwargs)
+        except models.ViewGroup.DoesNotExist:
+            raise PermissionDenied(
+                'This view has no authorised groups.',
+            )
+
+        raise PermissionDenied(
+            'You do not have permission for this view.',
+        )
 
     return wrapper
 
