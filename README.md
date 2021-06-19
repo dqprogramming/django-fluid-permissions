@@ -21,7 +21,7 @@ Decorating a Function
 Fluid Permissions provides a decorator you can use to limit access to certain views. See the example below for usage.
 
 ```
-from django.shortcuts import reverse
+from django.shortcuts import render
 
 from fluid_permissions import decorators
 
