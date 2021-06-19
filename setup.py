@@ -9,7 +9,7 @@ setup(
     url='https://gitlab.com/dqprogramming/',
     license='LICENSE.txt',
     description='A Django permissions package.',
-    long_description=open('README.txt').read(),
+    long_description=open('README.md').read(),
     install_requires=[
        "Django >= 3.2.4",
     ],
